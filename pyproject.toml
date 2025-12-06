@@ -13,6 +13,7 @@ dependencies = [
     "matplotlib",
     "pillow",
     "analyze_drafter_site",
+    "numpy",
 ]
 
 [tool.pyright]
