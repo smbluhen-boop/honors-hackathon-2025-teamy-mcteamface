@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
 
-from meta import *
 
 # hide_debug_information()
 # set_website_framed(False)
@@ -35,35 +34,44 @@ def index(state:State)->Page:
     '''
     return Page(state,[
         "compare bear population to congres statistices!",
-        Button("Let's start comparing!", "data_combear")
+        Button("Let's start comparing!", data_combear)
     ])
 
 @route
 def data_combear(state:State)->Page:
     return Page(state,[
         "Choose the data you want to compare!!",
-        Button("Bear population to congressional seats",)
+        Button("Bear population to senate seats", bear_to_senate_seats)
     ])
 
 @route
-def bear_to_seats(state:State)->Page:
+def bear_to_senate_seats(state:State)->Page:
     bears=[]
     for line in open("bear_data_by_state"):
         parts=line.split("\t")
         state=parts[1]
-        bear_pop=parts[2].replace(",","").strip()
+        bear_pop=parts[2].strip()
         if bear_pop==-1:
             bear_pop=0
         else:
             bear_pop=int(bear_pop)
         bears.append((bear_pop))
-    total_seats_per_state=[]
+    total_senate_seats_per_state=[]
     for index,line in enumerate(open("congress_data")):
         if index>0:
-            parts=line.split(" ")
+            parts=line.split()
             state=parts[0]
-            seats=int(parts[1].strip())
-            total_seats_per_state.append((seats))
+            total_senate_seats=int(parts[2])
+            total_senate_seats_per_state.append((total_senate_seats))
+    plt.scatter(x=bears,y=total_senate_seats_per_state),
+    plt.xlabel("bear population"),
+    plt.ylabel("congressional senate seats")
+    plt.title("bears vs senate seats")
+    plt.show()
+    return Page(state, [
+        MatPlotLibPlot(),
+        Button("return to home", index)
+    ])
     
 
 
