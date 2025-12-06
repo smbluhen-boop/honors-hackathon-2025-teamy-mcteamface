@@ -48,9 +48,37 @@ def index(state:State)->Page:
         bears.append((int(bear_pop)))
     state.bears=bears
     return Page(state,[
+        Image("fat_bear_1.jpg", state.bear_width, state.bear_length),
+        Button("Fatten Bear", "fatten_bear"),
         "Compare bear population to state congress statistics!",
-        Button("Let's start comparing!", data_combear)
+        Button("Let's start comparing!", data_combear),
+        Button("Bear population for each state", "get_state_list")
     ])
+
+@route
+def fatten_bear (state: State) -> Page:
+    state.bear_width = state.bear_width + 10
+    return index(state)
+
+@route
+def get_state_list (state: State) -> Page:
+    bears = []
+    states = []
+    for line in bear_stats:
+        parts=line.split("\t")
+        location=parts[1]
+        states.append(location)
+        bear_pop=parts[2].replace(",","").strip()
+        if bear_pop==-1:
+            bear_pop=0
+        else:
+            bear_pop=int(bear_pop)
+        bears.append((str(bear_pop)))
+    return Page(state, [
+        'If the bear population is "-1", then there is no recorded population of black bears.',
+        Table([states,bears]),
+        Button("Return to Main Page", "index")
+        ])
 
 @route
 def data_combear(state:State)->Page:
