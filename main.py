@@ -21,8 +21,8 @@ Your description can go here.
 
 @dataclass
 class State:
-    bear_width=int
-    bear_lenth=int
+    bear_width:int
+    bear_length:int
     bears:list[int]
 
 
@@ -62,9 +62,9 @@ def fatten_bear (state: State) -> Page:
 
 @route
 def get_state_list (state: State) -> Page:
-    bears = []
+    minibears = []
     states = []
-    for line in bear_stats:
+    for line in open("bear_data_by_state"):
         parts=line.split("\t")
         location=parts[1]
         states.append(location)
@@ -73,10 +73,10 @@ def get_state_list (state: State) -> Page:
             bear_pop=0
         else:
             bear_pop=int(bear_pop)
-        bears.append((str(bear_pop)))
+        minibears.append((str(bear_pop)))
     return Page(state, [
         'If the bear population is "-1", then there is no recorded population of black bears.',
-        Table([states,bears]),
+        Table([states,minibears]),
         Button("Return to Main Page", "index")
         ])
 
@@ -102,9 +102,21 @@ def bear_to_senate_seats(state:State)->Page:
             location=parts[0]
             total_senate_seats=int(parts[2])
             total_senate_seats_per_state.append((total_senate_seats))
-    plt.scatter(x=state.bears,y=total_senate_seats_per_state),
+    filt_bears=[]
+    filt_senate=[]
+    for i,bear in enumerate(state.bears):
+         if not (bear==0 or bear ==-1):
+            filt_bears.append(bear)
+            filt_senate.append(total_senate_seats_per_state[i])
+    x=np.array(filt_bears)
+    y=np.array(filt_senate)
+
+    slope, y_int=np.polyfit(x,y,1)
+    trendline=slope*x+y_int
+    plt.plot(x,trendline,color='Blue',label='trendline')
+    plt.scatter(x,y),
     plt.xlabel("bear population"),
-    plt.ylabel("congressional senate seats")
+    plt.ylabel("state senate seats")
     plt.title("bears vs senate seats")
     plt.show()
     return Page(state, [
@@ -124,9 +136,20 @@ def bear_to_house_seats(state:State)->Page:
                     total_house_seats_per_state.append((total_house_seats))
             else:
                 total_house_seats_per_state.append(0)
-    plt.scatter(state.bears,total_house_seats_per_state),
+    filt_bears=[]
+    filt_house=[]
+    for i,bear in enumerate(state.bears):
+         if not (bear==0 or bear ==-1):
+            filt_bears.append(bear)
+            filt_house.append(total_house_seats_per_state[i])
+    x=np.array(filt_bears)
+    y=np.array(filt_house)
+    slope, y_int=np.polyfit(x,y,1)
+    trendline=slope*x+y_int
+    plt.plot(x,trendline,color='Blue',label='trendline')
+    plt.scatter(x,y),
     plt.xlabel("bear population"),
-    plt.ylabel("congressional house seats")
+    plt.ylabel("state house seats")
     plt.title("bears vs house seats")
     plt.show()
     return Page(state, [
@@ -221,4 +244,4 @@ def party_composition_compare_house(state:State)->Page:
 
 
 
-start_server(State(100,100,bears=[]))
+start_server(State(100,100,[]))
